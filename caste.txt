@@ -1,0 +1,71 @@
+<?php
+session_start();
+include("includes/loginheader.php");
+if(!$_SESSION['gen_id'])
+{
+	header("locations:elections.php");
+}
+?>
+<br>
+<div class="container">
+ <div class ="col-md-6 col-md-offset-3">
+ <form method="post">
+ <?php
+ require("includes/db.php");
+ $ename=$_GET['election_name'];
+ ?>
+ <div class="form-group">
+ <input type="text" value="<?php echo $ename; ?>" class="form-control" readonly>
+ </div>
+ <?php
+ $select="select * from candidates where election='$ename'";
+ $run=$conn->query($select);
+ if($run->num_rows>0)
+ {
+	 while($row=$run->fetch_array())
+	 {
+		 ?>
+		 <div class="form-group">
+		
+		 <input type="radio" name="choice" class="form-control" value=<?php echo $row['name'];?>">
+		 <label><?php echo $row['name'];?></label>
+		 </div>
+		 
+		 
+		 <?php
+	 }
+ }
+ ?>
+ <input type="submit" name="caste" class="btn btn-success" value="Caste Your Vote">
+ 
+ </form>
+ </div>
+ </div>
+ <?php
+ if(isset($_POST['caste']))
+ {
+	 $name=$_POST['choice'];
+	 $user_enrol=$_SESSION['user_enrol'];
+	
+	 
+ }
+ ?>
+ $insert="insert into results(enrol,election,candidate) values ('$user_enrol','$ename','$name')";
+	 $run=$conn->query($insert);
+	 if($run)
+	 {
+		 $update="update candidates set votes='votes'+'1' where name='$name' and election='$ename'";
+		 $exe=$conn->query($update);
+		 if($exe)
+		 { 
+		  echo "success";
+		 }
+		 else 
+		 {
+			 echo "fail";
+		 }
+	 }
+	 else {
+		 echo "error";
+	 }
+ }
